@@ -16,12 +16,15 @@ Next 16 differs from older versions: read `node_modules/next/dist/docs/` before 
 - `npm run dev` — dev server (`.claude/launch.json` → `portfolio-dev`, port 3000)
 - `npm run build` · `npm run lint` · `npm run typecheck` · `npm test`
 - `npm run optimize:frames` — `assets-source/frameN.jpg` → `public/hero/frameN.webp`
+- `npm run subset:font` — rebuilds `app/fonts/shippori-mincho-subset.woff2` from the Japanese text in `lib/hero/copy.ts` (run it after editing any Japanese copy)
 
 ## Conventions
 
-- Hero is **data-driven**: frames, copy and scroll ranges live in `lib/hero/config.ts`. José may later replace the AI-generated frames with his own, so never hard-code frame logic in components.
+- Hero is **data-driven**: frames, focal points, scroll length and transition feel live in `lib/hero/config.ts`; every word shown over it lives in `lib/hero/copy.ts`. José may later replace the AI-generated frames with his own, so never hard-code frame logic in components.
 - Pure animation maths lives in `lib/hero/timeline.ts` (unit-tested); drawing lives in `lib/hero/renderer.ts`.
-- Text over the hero is real HTML (sharp, accessible), never drawn into the canvas.
+- Text over the hero is real HTML (sharp, accessible), never drawn into the canvas. Elements marked `data-hero-frame="N"` in `components/hero/HeroOverlay.tsx` are faded per scroll state by `lib/hero/overlay.ts` (DOM writes, no React renders while scrolling). The first frame's vertical kanji "curtain" covers the figure's face, which the focal-point crop keeps at ~43% of the height.
+- Intro choreography is CSS (`.hero-in`, `.hero-line`, `.hero-stamp` in `app/globals.css`), triggered by `data-ready="true"` on the hero section.
+- Layout rule: the overlay must not collide on a 375px-wide phone (Unbounded is wide). Check with real bounding boxes, not by eye.
 - Fonts: Unbounded (display) · Shippori Mincho (vertical kanji, glyph-subset, self-hosted) · JetBrains Mono (cryptic HUD text) · DM Sans (light section).
 - Colours (tokens in `app/globals.css`): ink `#07070d`, paper `#f6f1e9`, vermilion `#e5233b`, fog `#8b88a0`.
 - Logo: `components/Logo.tsx` (inline SVG, `currentColor`) from `lib/logo.ts`; standalone `public/logo.svg`; favicon `app/icon.svg`.
