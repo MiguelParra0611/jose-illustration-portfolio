@@ -1,17 +1,14 @@
-import { Logo } from "@/components/Logo";
+import { ScrollHero } from "@/components/hero/ScrollHero";
 
-// Checkpoint 0 placeholder: proves fonts, colours and the logo render.
-// The scroll-driven hero replaces this in checkpoint 1.
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-8 px-6 text-center">
-      <Logo className="w-32 text-white" />
-      <h1 className="font-display text-2xl font-bold uppercase tracking-tight">
-        Behind the mask
-      </h1>
-      <p className="font-mono text-xs tracking-[0.2em] text-vermilion">
-        {"// SIGNAL INCOMING"}
-      </p>
-    </main>
+    <>
+      <ScrollHero />
+
+      {/* Placeholder for the gallery (checkpoint 3): proves the hero hands over to normal scrolling. */}
+      <section className="flex min-h-svh items-center justify-center bg-paper text-ink">
+        <p className="font-mono text-xs tracking-[0.2em]">{"// GALLERY — CHECKPOINT 3"}</p>
+      </section>
+    </>
   );
 }
