@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Logo } from "@/components/Logo";
+import { Atmosphere } from "@/components/hero/Atmosphere";
+import { HeroOverlay } from "@/components/hero/HeroOverlay";
 import {
   HERO_BLUR_RADIUS,
   HERO_FRAMES,
@@ -12,6 +14,7 @@ import {
   HERO_SMOOTHING_SECONDS,
   HERO_TIMELINE,
 } from "@/lib/hero/config";
+import { createOverlayController } from "@/lib/hero/overlay";
 import {
   createHeroRenderer,
   loadHeroAssets,
@@ -45,6 +48,7 @@ function useReducedMotion(): boolean {
  */
 export function ScrollHero() {
   const sectionRef = useRef<HTMLElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reducedMotion = useReducedMotion();
 
@@ -54,7 +58,8 @@ export function ScrollHero() {
   useEffect(() => {
     const section = sectionRef.current;
     const canvas = canvasRef.current;
-    if (!section || !canvas) return;
+    const sticky = stickyRef.current;
+    if (!section || !canvas || !sticky) return;
 
     let disposed = false;
     let renderer: HeroRenderer | null = null;
@@ -74,8 +79,12 @@ export function ScrollHero() {
         const heroRenderer = createHeroRenderer(canvas, assets, { overscan: HERO_OVERSCAN });
         renderer = heroRenderer;
 
+        const overlay = createOverlayController(sticky);
+
         if (reducedMotion) {
-          heroRenderer.render(computeHeroState(1, HERO_TIMELINE));
+          const state = computeHeroState(1, HERO_TIMELINE);
+          heroRenderer.render(state);
+          overlay.update(state);
         } else {
           let target = 0;
           let current = 0;
@@ -98,7 +107,9 @@ export function ScrollHero() {
             if (Math.abs(target - current) < 0.00005) current = target;
 
             if (current !== drawn) {
-              heroRenderer.render(computeHeroState(current, HERO_TIMELINE));
+              const state = computeHeroState(current, HERO_TIMELINE);
+              heroRenderer.render(state);
+              overlay.update(state);
               drawn = current;
             }
           };
@@ -128,17 +139,20 @@ export function ScrollHero() {
     <section
       ref={sectionRef}
       aria-label="Introduction"
+      data-ready={ready}
       className="relative"
       style={{ height: reducedMotion ? "100svh" : `${HERO_SCROLL_SVH}svh` }}
     >
       <h1 className="sr-only">Illustration portfolio</h1>
 
-      <div className="sticky top-0 h-svh w-full overflow-hidden bg-ink">
+      <div ref={stickyRef} className="sticky top-0 h-svh w-full overflow-hidden bg-ink">
         <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" />
+        <Atmosphere />
+        <HeroOverlay />
 
         <div
           aria-hidden={ready}
-          className={`absolute inset-0 flex flex-col items-center justify-center gap-6 bg-ink transition-opacity duration-700 ${
+          className={`absolute inset-0 z-20 flex flex-col items-center justify-center gap-6 bg-ink transition-opacity duration-700 ${
             ready ? "pointer-events-none opacity-0" : "opacity-100"
           }`}
         >
