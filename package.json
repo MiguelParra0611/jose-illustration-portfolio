@@ -9,7 +9,8 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run --passWithNoTests",
-    "optimize:frames": "node scripts/optimize-frames.mjs"
+    "optimize:frames": "node scripts/optimize-frames.mjs",
+    "subset:font": "node scripts/subset-japanese-font.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
