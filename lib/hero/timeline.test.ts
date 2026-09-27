@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   computeHeroState,
   dominantFrame,
+  frameTextPhase,
   smoothstep,
   type TimelineConfig,
 } from "./timeline";
@@ -140,5 +141,56 @@ describe("smoothstep", () => {
     expect(smoothstep(0.2, 0.8, 0)).toBe(0);
     expect(smoothstep(0.2, 0.8, 1)).toBe(1);
     expect(smoothstep(0.2, 0.8, 0.5)).toBeCloseTo(0.5, 10);
+  });
+});
+
+describe("frameTextPhase", () => {
+  const opacities = (progress: number) =>
+    [0, 1, 2, 3].map((i) => frameTextPhase(computeHeroState(progress, config), i).opacity);
+
+  it("shows only the first frame's copy at the start and only the last frame's at the end", () => {
+    expect(opacities(0)).toEqual([1, 0, 0, 0]);
+    expect(opacities(1)).toEqual([0, 0, 0, 1]);
+  });
+
+  it("shows only the copy of the frame holding still at each station", () => {
+    expect(opacities(1 / 3)).toEqual([0, 1, 0, 0]);
+    expect(opacities(2 / 3)).toEqual([0, 0, 1, 0]);
+    expect(opacities(1 / 3 - 0.02)).toEqual([0, 1, 0, 0]);
+    expect(opacities(1 / 3 + 0.02)).toEqual([0, 1, 0, 0]);
+  });
+
+  it("leaves a gap mid-transition instead of stacking two frames' copy", () => {
+    expect(opacities(0.5 / 3)).toEqual([0, 0, 0, 0]);
+
+    for (let i = 0; i <= 300; i++) {
+      const total = opacities(i / 300).reduce((a, b) => a + b, 0);
+      expect(total).toBeLessThanOrEqual(1 + 1e-9);
+    }
+  });
+
+  it("fades the outgoing copy out and the incoming copy in, monotonically", () => {
+    let outgoing = 1;
+    let incoming = 0;
+
+    for (let i = 0; i < 200; i++) {
+      const state = computeHeroState((i / 200) * (1 / 3), config);
+      const out = frameTextPhase(state, 0).opacity;
+      const inn = frameTextPhase(state, 1).opacity;
+
+      expect(out).toBeLessThanOrEqual(outgoing + 1e-12);
+      expect(inn).toBeGreaterThanOrEqual(incoming - 1e-12);
+
+      outgoing = out;
+      incoming = inn;
+    }
+  });
+
+  it("drifts past copy up and upcoming copy from below", () => {
+    const state = computeHeroState(2 / 3, config);
+
+    expect(frameTextPhase(state, 0).offset).toBe(-1);
+    expect(frameTextPhase(state, 2).offset).toBe(0);
+    expect(frameTextPhase(state, 3).offset).toBe(1);
   });
 });

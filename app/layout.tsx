@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, JetBrains_Mono, Unbounded } from "next/font/google";
+import localFont from "next/font/local";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import "./globals.css";
 
@@ -14,6 +15,14 @@ const unbounded = Unbounded({
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin"],
+  display: "swap",
+});
+
+// Vertical kanji. Trimmed to the glyphs used in lib/hero/copy.ts (npm run subset:font).
+const shipporiMincho = localFont({
+  src: "./fonts/shippori-mincho-subset.woff2",
+  variable: "--font-mincho",
+  weight: "700",
   display: "swap",
 });
 
@@ -38,7 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${unbounded.variable} ${jetbrainsMono.variable} ${dmSans.variable} antialiased`}
+      className={`${unbounded.variable} ${jetbrainsMono.variable} ${shipporiMincho.variable} ${dmSans.variable} antialiased`}
     >
       <body>
         <SmoothScroll>{children}</SmoothScroll>

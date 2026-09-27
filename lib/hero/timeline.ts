@@ -129,3 +129,30 @@ export function computeHeroState(progress: number, config: TimelineConfig): Hero
 export function dominantFrame(state: HeroState): number {
   return state.top && state.top.alpha >= 0.999 ? state.top.index : state.base.index;
 }
+
+export interface TextPhase {
+  /** 0..1 opacity of the text that belongs to a frame. */
+  opacity: number;
+  /** -1 (already gone, drifted up) .. 0 (fully shown) .. 1 (still waiting, below). */
+  offset: number;
+}
+
+/**
+ * How visible the copy of one frame is. Text leaves early in a transition and
+ * arrives late, so two frames' copy is never on screen at the same time.
+ */
+export function frameTextPhase(state: HeroState, frameIndex: number): TextPhase {
+  const { segment, t } = state;
+
+  if (frameIndex === segment) {
+    const gone = smoothstep(0, 0.35, t);
+    return { opacity: 1 - gone, offset: 0 - gone };
+  }
+
+  if (frameIndex === segment + 1) {
+    const away = 1 - smoothstep(0.65, 1, t);
+    return { opacity: 1 - away, offset: away };
+  }
+
+  return { opacity: 0, offset: frameIndex < segment ? -1 : 1 };
+}
