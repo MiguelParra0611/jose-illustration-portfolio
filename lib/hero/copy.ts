@@ -8,6 +8,15 @@
  * Have a native speaker review the Japanese before launch.
  */
 export const HERO_COPY = {
+  /**
+   * Static title card, shown immediately on load, before the scroll-driven
+   * hero and independent of it loading its frames. See components/IntroScreen.tsx.
+   */
+  intro: {
+    title: "Behind the mask",
+    status: "Signal incoming",
+  },
+
   /** Headline, one entry per line. Shown in capitals. */
   tagline: ["Behind", "the mask"],
 

@@ -20,6 +20,7 @@ Next 16 differs from older versions: read `node_modules/next/dist/docs/` before 
 
 ## Conventions
 
+- `components/IntroScreen.tsx` is a static title card (logo, "Behind the mask", "Signal incoming") rendered in normal document flow **before** `<ScrollHero />`. It is not a loading screen: it doesn't depend on the hero's assets and doesn't disappear on its own — the visitor scrolls past it into the pinned hero. It holds the page's one visible `<h1>`.
 - Hero is **data-driven**: frames, focal points, scroll length and transition feel live in `lib/hero/config.ts`; every word shown over it lives in `lib/hero/copy.ts`. José may later replace the AI-generated frames with his own, so never hard-code frame logic in components.
 - Pure animation maths lives in `lib/hero/timeline.ts` (unit-tested); drawing lives in `lib/hero/renderer.ts`.
 - Text over the hero is real HTML (sharp, accessible), never drawn into the canvas. Elements marked `data-hero-frame="N"` in `components/hero/HeroOverlay.tsx` are faded per scroll state by `lib/hero/overlay.ts` (DOM writes, no React renders while scrolling). The first frame's vertical kanji "curtain" covers the figure's face, which the focal-point crop keeps at ~43% of the height.

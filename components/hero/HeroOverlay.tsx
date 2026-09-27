@@ -1,5 +1,4 @@
 import type { CSSProperties } from "react";
-import { Logo } from "@/components/Logo";
 import { HERO_FRAMES } from "@/lib/hero/config";
 import { HERO_COPY } from "@/lib/hero/copy";
 import { HeroCta } from "./HeroCta";
@@ -43,7 +42,7 @@ export function HeroOverlay() {
         ))}
       </div>
 
-      {/* Top right: vertical kanji, where the seal used to sit. */}
+      {/* Top right: vertical kanji. The mask itself only appears on the static intro card above the hero. */}
       <div className="absolute right-[var(--gutter)] top-[var(--gutter)]">
         <p
           data-hero-frame={0}
@@ -56,13 +55,6 @@ export function HeroOverlay() {
             {HERO_COPY.curtain}
           </span>
         </p>
-      </div>
-
-      {/* Centre, above the figure's head: the seal. */}
-      <div className="absolute left-1/2 top-[15%] -translate-x-1/2 -translate-y-1/2">
-        <div data-hero-frame={0}>
-          <Logo title={null} className="hero-stamp w-[clamp(4.5rem,11vh,8rem)] text-white" />
-        </div>
       </div>
 
       {/* Right edge: one small vertical kanji per frame. */}

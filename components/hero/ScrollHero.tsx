@@ -143,8 +143,6 @@ export function ScrollHero() {
       className="relative"
       style={{ height: reducedMotion ? "100svh" : `${HERO_SCROLL_SVH}svh` }}
     >
-      <h1 className="sr-only">Illustration portfolio</h1>
-
       <div ref={stickyRef} className="sticky top-0 h-svh w-full overflow-hidden bg-ink">
         <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" />
         <Atmosphere />

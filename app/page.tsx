@@ -1,8 +1,10 @@
+import { IntroScreen } from "@/components/IntroScreen";
 import { ScrollHero } from "@/components/hero/ScrollHero";
 
 export default function Home() {
   return (
     <>
+      <IntroScreen />
       <ScrollHero />
 
       {/* Placeholder for the gallery (checkpoint 3): proves the hero hands over to normal scrolling. */}
