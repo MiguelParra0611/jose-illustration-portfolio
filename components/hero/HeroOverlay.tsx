@@ -43,26 +43,26 @@ export function HeroOverlay() {
         ))}
       </div>
 
-      {/* Top right: the seal. */}
+      {/* Top right: vertical kanji, where the seal used to sit. */}
       <div className="absolute right-[var(--gutter)] top-[var(--gutter)]">
-        <div data-hero-frame={0}>
-          <Logo title={null} className="hero-stamp w-[clamp(3rem,6vw,5rem)] text-white" />
-        </div>
-      </div>
-
-      {/* Centre: vertical kanji that covers the figure's face until the camera moves in. */}
-      <div className="absolute left-1/2 top-[43%] -translate-x-1/2 -translate-y-1/2">
         <p
           data-hero-frame={0}
           data-hero-effect="curtain"
           lang="ja"
           aria-hidden="true"
-          className="font-jp text-[clamp(1.5rem,min(6.5vh,11vw),6rem)] font-bold leading-none tracking-[0.18em] whitespace-nowrap text-white/95 [text-shadow:0_0_36px_rgba(0,0,0,0.55)] [writing-mode:vertical-rl]"
+          className="font-jp text-[clamp(1rem,min(3.4vh,5.5vw),2rem)] font-bold leading-none tracking-[0.18em] whitespace-nowrap text-white/95 [text-shadow:0_0_24px_rgba(0,0,0,0.6)] [writing-mode:vertical-rl]"
         >
           <span className="hero-in block" style={delay(0.7)}>
             {HERO_COPY.curtain}
           </span>
         </p>
+      </div>
+
+      {/* Centre, above the figure's head: the seal. */}
+      <div className="absolute left-1/2 top-[15%] -translate-x-1/2 -translate-y-1/2">
+        <div data-hero-frame={0}>
+          <Logo title={null} className="hero-stamp w-[clamp(4.5rem,11vh,8rem)] text-white" />
+        </div>
       </div>
 
       {/* Right edge: one small vertical kanji per frame. */}
