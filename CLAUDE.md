@@ -31,8 +31,8 @@ Next 16 differs from older versions: read `node_modules/next/dist/docs/` before 
 - Logo: `components/Logo.tsx` (inline SVG, `currentColor`) from `lib/logo.ts`; standalone `public/logo.svg`; favicon `app/icon.svg`.
 - Originals (frames, logo) stay untouched in `assets-source/`.
 - Any Japanese copy must be reviewed by a native speaker before launch.
-- The hero hands off to the light section via a curtain (`lib/hero/curtain.ts`, wired in `ScrollHero.tsx`): it rises in frame 4's final hold and fades the hero overlay text out at the same time, so white hero text is never shown over the light `paper` background.
-- Gallery: `lib/illustrations.ts` holds the 5 pieces (data-driven, same spirit as the hero); `components/gallery/Card.tsx` renders a placeholder visual whenever `image` is null. Real artwork and copy land in checkpoint 5 — keep the data shape stable. Non-hero copy (section eyebrows/headings) lives in `lib/site-copy.ts`.
+- The hero hands off to the light section with a **hard cut, on purpose** (the user rejected a fade/curtain transition): once the pin releases, `GalleryIntro.tsx` — a solid, full-height chapter title ("// My work — illustrations") — is simply next in the DOM, arriving the same static way `IntroScreen` does. Don't reintroduce a cross-fade here without asking.
+- Gallery: `lib/illustrations.ts` holds the 5 pieces (data-driven, same spirit as the hero); `components/gallery/Card.tsx` renders a placeholder visual whenever `image` is null. Real artwork and copy land in checkpoint 5 — keep the data shape stable. `GalleryIntro.tsx` carries the section's one visible heading (`#gallery-heading`); `Gallery.tsx`'s `<section>` points back to it via `aria-labelledby` rather than repeating it. Non-hero copy lives in `lib/site-copy.ts`.
 
 ## Git workflow (checkpoints)
 

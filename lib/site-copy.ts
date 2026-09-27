@@ -5,7 +5,12 @@
  */
 export const SITE_COPY = {
   gallery: {
-    eyebrow: "// Selected work",
-    heading: "Selected illustrations",
+    /**
+     * Shown alone on a solid, full-height "chapter title" block (see
+     * GalleryIntro.tsx) between the hero and the illustration grid. No
+     * animation: it's meant to arrive as a plain, static section on scroll,
+     * the same way the hero's own intro card does.
+     */
+    chapterTitle: "My work — illustrations",
   },
 } as const;
