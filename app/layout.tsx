@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, JetBrains_Mono, Unbounded } from "next/font/google";
+import { SmoothScroll } from "@/components/SmoothScroll";
 import "./globals.css";
 
 // Display face for the hero headline (wide, futuristic).
@@ -39,7 +40,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${unbounded.variable} ${jetbrainsMono.variable} ${dmSans.variable} antialiased`}
     >
-      <body>{children}</body>
+      <body>
+        <SmoothScroll>{children}</SmoothScroll>
+      </body>
     </html>
   );
 }
