@@ -17,8 +17,12 @@ export const HERO_COPY = {
     status: "Signal incoming",
   },
 
-  /** Headline, one entry per line. Shown in capitals. */
-  tagline: ["Behind", "the mask"],
+  /**
+   * Headline on frame 1 of the canvas hero, one entry per line, shown in
+   * capitals. Kept distinct from `intro.title` ("Behind the mask") so the
+   * same phrase doesn't appear twice a few seconds apart.
+   */
+  tagline: ["Concept", "artist"],
 
   /** Vertical column that covers the figure's face in the first frame ("beyond the mask"). */
   curtain: "仮面の向こうに",
