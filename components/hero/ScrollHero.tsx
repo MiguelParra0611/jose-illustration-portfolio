@@ -14,6 +14,7 @@ import {
   HERO_SMOOTHING_SECONDS,
   HERO_TIMELINE,
 } from "@/lib/hero/config";
+import { curtainAmount } from "@/lib/hero/curtain";
 import { createOverlayController } from "@/lib/hero/overlay";
 import {
   createHeroRenderer,
@@ -50,6 +51,8 @@ export function ScrollHero() {
   const sectionRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const curtainRef = useRef<HTMLDivElement>(null);
+  const overlayWrapRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
 
   const [loadedFraction, setLoadedFraction] = useState(0);
@@ -110,6 +113,17 @@ export function ScrollHero() {
               const state = computeHeroState(current, HERO_TIMELINE);
               heroRenderer.render(state);
               overlay.update(state);
+
+              // Rise the light-section curtain and fade the hero's (white)
+              // text together, so it's never shown over a light background.
+              const amount = curtainAmount(current);
+              if (curtainRef.current) {
+                curtainRef.current.style.transform = `translateY(${(1 - amount) * 100}%)`;
+              }
+              if (overlayWrapRef.current) {
+                overlayWrapRef.current.style.opacity = String(1 - amount);
+              }
+
               drawn = current;
             }
           };
@@ -146,7 +160,24 @@ export function ScrollHero() {
       <div ref={stickyRef} className="sticky top-0 h-svh w-full overflow-hidden bg-ink">
         <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" />
         <Atmosphere />
-        <HeroOverlay />
+
+        {/* Light-section curtain: rises from the bottom in frame 4's final hold (see lib/hero/curtain.ts). */}
+        {!reducedMotion && (
+          <div
+            ref={curtainRef}
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-[5]"
+            style={{
+              transform: "translateY(100%)",
+              background:
+                "linear-gradient(to top, var(--paper) 0%, var(--paper) 55%, transparent 100%)",
+            }}
+          />
+        )}
+
+        <div ref={overlayWrapRef} className="absolute inset-0 z-10">
+          <HeroOverlay />
+        </div>
 
         <div
           aria-hidden={ready}
