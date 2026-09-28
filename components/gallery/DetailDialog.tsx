@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
 import gsap from "gsap";
 import { Flip } from "gsap/Flip";
-import type { Illustration } from "@/lib/illustrations";
+import { isLandscape, type Illustration } from "@/lib/illustrations";
 import { resolveSpeedDrawing } from "@/lib/speed-drawing";
 import { PlaceholderArt } from "./Card";
 
@@ -12,6 +12,14 @@ gsap.registerPlugin(Flip);
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const reducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia(REDUCED_MOTION_QUERY).matches;
+
+/**
+ * Flip animates width/height (not scaleX/scaleY): the card crops the art to 3:4
+ * or 3:2 while the detail view shows all of it, and scaling a box between two
+ * different aspect ratios would visibly stretch the picture in flight. With
+ * real sizes the images (object-cover) simply re-crop smoothly as the box grows.
+ */
+const FLIP_BASE = { absolute: true, scale: false } as const;
 
 interface DetailDialogProps {
   illustration: Illustration | null;
@@ -27,6 +35,12 @@ interface DetailDialogProps {
  * box (see Gallery.tsx for how cards register themselves); the rest of the
  * chrome fades in alongside it. ESC and backdrop clicks both run the same
  * animated close as the button, via the dialog's `cancel` event.
+ *
+ * The artwork is always shown whole, at its own aspect ratio: a portrait sits
+ * beside the text from `lg` up, a landscape piece (and everything below `lg`)
+ * stacks above it. The picture pane holds that size in flow while the image
+ * box inside it (absolutely positioned) is what Flip moves, so animating it
+ * never reflows the dialog.
  */
 export function DetailDialog({ illustration, getCardBox, index, onClose }: DetailDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -59,8 +73,7 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
         targets: imageBox,
         duration: 0.55,
         ease: "power2.inOut",
-        absolute: true,
-        scale: true,
+        ...FLIP_BASE,
       });
     }
 
@@ -95,13 +108,12 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
       // Flip.fit()'s return value isn't reliably a tween across option combos.
       Flip.killFlipsOf(imageBox, true);
       const openState = Flip.getState(imageBox);
-      Flip.fit(imageBox, cardBoxEl, { absolute: true, scale: true });
+      Flip.fit(imageBox, cardBoxEl, FLIP_BASE);
       Flip.from(openState, {
         targets: imageBox,
         duration: 0.45,
         ease: "power2.inOut",
-        absolute: true,
-        scale: true,
+        ...FLIP_BASE,
         onComplete: finish,
       });
     } else {
@@ -128,6 +140,13 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
 
   const speedDrawing = illustration?.speedDrawing ? resolveSpeedDrawing(illustration.speedDrawing) : null;
 
+  const image = illustration?.image ?? null;
+  const landscape = image ? isLandscape(image) : false;
+  const paneStyle = { "--ar": image ? image.width / image.height : 3 / 4 } as CSSProperties;
+  const meta = illustration
+    ? [illustration.year, ...(illustration.tools ?? [])].filter(Boolean).join(" · ")
+    : "";
+
   return (
     <dialog
       ref={dialogRef}
@@ -138,7 +157,11 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
       }}
     >
       {illustration && (
-        <div className="relative mx-auto flex h-full w-full max-w-4xl flex-col overflow-y-auto rounded-2xl bg-paper sm:flex-row sm:overflow-hidden">
+        <div
+          className={`relative mx-auto flex max-h-full w-full flex-col overflow-y-auto rounded-2xl bg-paper ${
+            landscape ? "max-w-4xl" : "max-w-6xl lg:h-[min(85vh,52rem)] lg:flex-row lg:overflow-hidden"
+          }`}
+        >
           <button
             type="button"
             onClick={requestClose}
@@ -148,23 +171,49 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
             ✕
           </button>
 
+          {/* Holds the artwork's size in flow; never taller than ~62vh when stacked, so text stays in reach. */}
           <div
-            ref={imageBoxRef}
-            className="relative aspect-[3/4] w-full shrink-0 overflow-hidden bg-ink sm:h-full sm:w-1/2"
+            style={{ ...paneStyle, aspectRatio: "var(--ar)" }}
+            className={`relative mx-auto mt-6 w-[min(100%,calc(62vh*var(--ar)))] shrink-0 sm:mt-8 ${
+              landscape ? "" : "lg:mx-0 lg:mt-0 lg:h-full lg:w-auto"
+            }`}
           >
-            {illustration.image ? (
-              // eslint-disable-next-line @next/next/no-img-element -- swapped for next/image with real assets in checkpoint 5
-              <img
-                src={illustration.image}
-                alt={illustration.title}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            ) : (
-              <PlaceholderArt index={index} />
-            )}
+            <div ref={imageBoxRef} className="absolute inset-0 overflow-hidden bg-ink">
+              {image ? (
+                <>
+                  {/* Plain <img>s: sizes come pre-generated from scripts/optimize-illustrations.mjs.
+                      The card-size image is already cached from the grid, so it fills the box the
+                      instant it opens; the full-size one paints over it once it has loaded. */}
+                  {/* eslint-disable @next/next/no-img-element */}
+                  <img
+                    src={image.card}
+                    alt=""
+                    style={{ objectPosition: image.focus }}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  <img
+                    src={image.full}
+                    alt={image.alt}
+                    width={image.width}
+                    height={image.height}
+                    decoding="async"
+                    style={{ objectPosition: image.focus }}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                  {/* eslint-enable @next/next/no-img-element */}
+                </>
+              ) : (
+                <PlaceholderArt index={index} />
+              )}
+            </div>
           </div>
 
-          <div ref={panelRef} className="flex-1 overflow-y-auto p-6 text-ink sm:p-8">
+          <div
+            ref={panelRef}
+            className={`flex-1 p-6 text-ink sm:p-8 ${
+              landscape ? "mx-auto w-full max-w-2xl" : "lg:overflow-y-auto"
+            }`}
+          >
             <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-vermilion">
               {illustration.discipline}
             </p>
@@ -174,9 +223,7 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
             >
               {illustration.title}
             </h3>
-            <p className="mt-1 font-mono text-xs text-fog">
-              {illustration.year} · {illustration.tools.join(" · ")}
-            </p>
+            {meta && <p className="mt-1 font-mono text-xs text-fog">{meta}</p>}
             <p className="mt-4 text-sm leading-relaxed text-ink/80">{illustration.description}</p>
 
             {speedDrawing && (
