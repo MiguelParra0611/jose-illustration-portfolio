@@ -42,10 +42,12 @@ export const isLandscape = (image: IllustrationImage): boolean => image.width > 
  * fill exactly (2+1, then 1+1+1) with no gaps at any breakpoint.
  *
  * Pixel facts come from the generated ILLUSTRATION_IMAGES; the words here are
- * written by hand. Aurora and Wild Devotion carry José's own wording; for the
- * other three the titles come from the original file names and the
- * descriptions just describe what is drawn, so replace them when he sends his
- * own. Add `year` / `tools` / `speedDrawing` when he has them.
+ * written by hand. Aurora and Wild Devotion carry José's own wording, and
+ * Poki opens with his note that it is part of a "Queen" series inspired by his
+ * wife. Everything else in Poki, and all of Whitebird and Sacred, was drafted
+ * from what is visible in the artwork, so replace it when he sends his own.
+ * The titles of those last two come from the original file names. Add `year` /
+ * `tools` / `speedDrawing` when he has them.
  */
 export const ILLUSTRATIONS: Illustration[] = [
   {
@@ -80,7 +82,8 @@ export const ILLUSTRATIONS: Illustration[] = [
     title: "Poki",
     discipline: "Portrait",
     description: [
-      "A young woman with silver feather ornaments and blue face paint, two cockatiels perched on her shoulder and hand.",
+      "The second part of a “Queen” series inspired by the artist's wife. A young woman glances out with a calm, knowing smile while two cockatiels settle on her shoulder and hand, turning a simple bust into a small moment of trust between character and companions.",
+      "Warm skin tones and coral shadows sit against cool blues and silvers: the face paint, the blue nails and the silver feather and laurel ornaments, which read as a quiet, understated crown, echo one another across the composition. Soft, blended edges shape the face and hair, while the birds' plumage adds more defined passages against the pale background.",
     ],
     image: {
       ...ILLUSTRATION_IMAGES.poki,
@@ -92,7 +95,8 @@ export const ILLUSTRATIONS: Illustration[] = [
     title: "Whitebird",
     discipline: "Portrait",
     description: [
-      "A blindfolded girl with pale pink hair, white wings crowning her head and a gold collar set with open eyes.",
+      "A study in contrast between sight and its absence. A blindfold covers the character's eyes while a gold collar set with open eyes watches in their place, and small white wings sweep through her pink hair, lending an otherworldly presence to an otherwise quiet pose.",
+      "A pale palette of soft pinks, whites and cool grey-blues is anchored by three accents: the dark blindfold, the warm gold of the collar and the red of the lips. Soft, directional light sculpts the face and neck in gentle shadow, while the feathers and hair are handled with loose, painterly strokes.",
     ],
     image: {
       ...ILLUSTRATION_IMAGES.whitebird,
@@ -104,7 +108,8 @@ export const ILLUSTRATIONS: Illustration[] = [
     title: "Sacred",
     discipline: "Character design",
     description: [
-      "A veiled figure in black robes under a spiked halo, holding a crimson-wrapped staff in clawed gloves.",
+      "A character design that turns sacred imagery into something ominous. A veiled figure in black robes wears a spiked halo hung with stars, the face lit by a narrow beam under the hood, while clawed gloves grip a crimson-wrapped staff.",
+      "The palette is almost entirely black and charcoal, broken only by the crimson of the veil lining, the staff and the jewels, and by the pale ruffled cuffs. Fine damask patterns and the silver filigree of the staff add texture to the dark mass, while the glossy gloves and metallic halo contrast with the softer, painterly cloth.",
     ],
     image: {
       ...ILLUSTRATION_IMAGES.sacred,
