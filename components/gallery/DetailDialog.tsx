@@ -224,7 +224,11 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
               {illustration.title}
             </h3>
             {meta && <p className="mt-1 font-mono text-xs text-fog">{meta}</p>}
-            <p className="mt-4 text-sm leading-relaxed text-ink/80">{illustration.description}</p>
+            <div className="mt-4 space-y-3 text-sm leading-relaxed text-ink/80">
+              {illustration.description.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
 
             {speedDrawing && (
               <div className="mt-6">

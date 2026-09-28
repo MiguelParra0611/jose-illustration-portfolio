@@ -17,9 +17,10 @@ export interface IllustrationImage {
 export interface Illustration {
   slug: string;
   title: string;
-  /** Short tag shown under the title, e.g. "Splash art". */
+  /** Short tag shown above the title, e.g. "Splash art". */
   discipline: string;
-  description: string;
+  /** One entry per paragraph, shown in order on the detail view. */
+  description: string[];
   /** Left out (rather than guessed) until José confirms them. */
   year?: number;
   tools?: string[];
@@ -41,17 +42,20 @@ export const isLandscape = (image: IllustrationImage): boolean => image.width > 
  * fill exactly (2+1, then 1+1+1) with no gaps at any breakpoint.
  *
  * Pixel facts come from the generated ILLUSTRATION_IMAGES; the words here are
- * written by hand. Titles come from the original file names and descriptions
- * describe what is drawn — replace either with José's own wording, and add
- * `year` / `tools` / `speedDrawing` when he has them.
+ * written by hand. Aurora and Wild Devotion carry José's own wording; for the
+ * other three the titles come from the original file names and the
+ * descriptions just describe what is drawn, so replace them when he sends his
+ * own. Add `year` / `tools` / `speedDrawing` when he has them.
  */
 export const ILLUSTRATIONS: Illustration[] = [
   {
     slug: "aurora",
     title: "Aurora",
-    discipline: "Splash art",
-    description:
-      "A sorceress lounges in a candle-lit tavern, conjuring a ribbon of blue magic with her wand while a tray of beer passes in the foreground.",
+    discipline: "Splash art · Fan art",
+    description: [
+      "An original splash art exploring character, atmosphere, and narrative through light. Set within a dimly lit tavern, the piece captures a fleeting moment between celebration and the supernatural, contrasting warm ambient lighting with vibrant magical energy.",
+      "Created as an original fan art inspired by the visual language of Riot Games' League of Legends, the piece was also an exercise in composition, character rendering, lighting, and environmental storytelling. Rather than relying on extensive pre-production, the artwork developed organically through the painting process, allowing the composition and lighting to evolve alongside the character.",
+    ],
     image: {
       ...ILLUSTRATION_IMAGES.aurora,
       alt: "Splash art of a red-haired sorceress in a feathered teal hat, reclining in a candle-lit tavern and casting blue magic with her wand.",
@@ -60,10 +64,12 @@ export const ILLUSTRATIONS: Illustration[] = [
   },
   {
     slug: "tigre",
-    title: "Tigre",
+    title: "Wild Devotion",
     discipline: "Illustration",
-    description:
-      "A giant tiger leans into the touch of a girl in red ceremonial robes, a torii gate rising behind them.",
+    description: [
+      "A study in scale, contrast and quiet connection. The imposing presence of the tiger is balanced by the restrained posture of the figure, transforming what could feel threatening into something intimate.",
+      "Saturated oranges and reds dominate the composition, contrasted against muted stone and shadow. Strong graphic contours define the animal while softer painterly textures shape the character, fabric and environment, creating a balance between illustration and painterly rendering.",
+    ],
     image: {
       ...ILLUSTRATION_IMAGES.tigre,
       alt: "Illustration of a giant tiger resting its head in the hand of a girl in red ceremonial robes, with a red torii gate behind them.",
@@ -73,8 +79,9 @@ export const ILLUSTRATIONS: Illustration[] = [
     slug: "poki",
     title: "Poki",
     discipline: "Portrait",
-    description:
+    description: [
       "A young woman with silver feather ornaments and blue face paint, two cockatiels perched on her shoulder and hand.",
+    ],
     image: {
       ...ILLUSTRATION_IMAGES.poki,
       alt: "Portrait of a young woman with wavy brown hair, silver feather ornaments and blue face paint, with two cockatiels perched on her shoulder and hand.",
@@ -84,8 +91,9 @@ export const ILLUSTRATIONS: Illustration[] = [
     slug: "whitebird",
     title: "Whitebird",
     discipline: "Portrait",
-    description:
+    description: [
       "A blindfolded girl with pale pink hair, white wings crowning her head and a gold collar set with open eyes.",
+    ],
     image: {
       ...ILLUSTRATION_IMAGES.whitebird,
       alt: "Portrait of a blindfolded girl with pale pink hair, white wings in her hair and a gold collar set with eyes.",
@@ -95,8 +103,9 @@ export const ILLUSTRATIONS: Illustration[] = [
     slug: "sacred",
     title: "Sacred",
     discipline: "Character design",
-    description:
+    description: [
       "A veiled figure in black robes under a spiked halo, holding a crimson-wrapped staff in clawed gloves.",
+    ],
     image: {
       ...ILLUSTRATION_IMAGES.sacred,
       alt: "Character design of a veiled figure in black robes and a spiked halo, holding a crimson-wrapped staff in clawed black gloves.",
