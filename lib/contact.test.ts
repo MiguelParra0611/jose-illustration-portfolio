@@ -1,10 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { CONTACT, emailAddress, mailtoHref } from "./contact";
+import { CONTACT, emailAddress, gmailComposeHref } from "./contact";
 
 describe("contact details", () => {
   it("joins the two halves into José's address", () => {
     expect(emailAddress()).toBe("josegut.art@gmail.com");
-    expect(mailtoHref()).toBe("mailto:josegut.art@gmail.com");
+  });
+
+  it("opens a Gmail compose window addressed to him", () => {
+    const href = new URL(gmailComposeHref());
+
+    expect(href.origin).toBe("https://mail.google.com");
+    expect(href.pathname).toBe("/mail/");
+    expect(href.searchParams.get("view")).toBe("cm");
+    expect(href.searchParams.get("to")).toBe("josegut.art@gmail.com");
   });
 
   it("keeps the address split, so no half is a full email on its own", () => {

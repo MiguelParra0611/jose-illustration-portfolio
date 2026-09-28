@@ -14,4 +14,13 @@ export const CONTACT = {
 
 export const emailAddress = (): string => `${CONTACT.email.user}@${CONTACT.email.domain}`;
 
-export const mailtoHref = (): string => `mailto:${emailAddress()}`;
+/**
+ * Gmail's compose window, already addressed to José. It's web Gmail, so the
+ * link opens in a new tab and asks the visitor to sign in if they aren't;
+ * anyone who doesn't use Gmail can copy the address instead. Like
+ * emailAddress(), never call it while rendering on the server.
+ */
+export const gmailComposeHref = (): string => {
+  const params = new URLSearchParams({ view: "cm", fs: "1", to: emailAddress() });
+  return `https://mail.google.com/mail/?${params}`;
+};
