@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
 import gsap from "gsap";
 import { Flip } from "gsap/Flip";
+import { getLenis } from "@/lib/lenis";
 import { isLandscape, type Illustration } from "@/lib/illustrations";
 import { resolveSpeedDrawing } from "@/lib/speed-drawing";
 import { PlaceholderArt } from "./Card";
@@ -47,6 +48,31 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
   const imageBoxRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const closingRef = useRef(false);
+  const open = illustration !== null;
+
+  // Freeze the page behind the dialog while it is open. A native modal doesn't
+  // lock scrolling, and Lenis listens for the wheel on the whole window, so
+  // without this the wheel scrolls the page behind and never the dialog's own
+  // scroll area (the dialog carries `data-lenis-prevent` so Lenis leaves those
+  // events alone). Declared before the open effect below so the layout has
+  // settled when the card's box is measured for the Flip.
+  useLayoutEffect(() => {
+    if (!open) return;
+
+    const root = document.documentElement;
+    // Hiding the page's scrollbar would widen the page and nudge the cards
+    // behind the dialog, so the width it took is padded back in.
+    const scrollbar = window.innerWidth - root.clientWidth;
+    root.style.overflow = "hidden";
+    if (scrollbar > 0) root.style.paddingRight = `${scrollbar}px`;
+    getLenis()?.stop();
+
+    return () => {
+      root.style.overflow = "";
+      root.style.paddingRight = "";
+      getLenis()?.start();
+    };
+  }, [open]);
 
   // Open: show the native dialog, then Flip the image box in from the card's box.
   useLayoutEffect(() => {
@@ -151,6 +177,7 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
     <dialog
       ref={dialogRef}
       aria-labelledby="detail-title"
+      data-lenis-prevent
       className="detail-dialog"
       onClick={(event) => {
         if (event.target === dialogRef.current) requestClose();
@@ -158,7 +185,7 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
     >
       {illustration && (
         <div
-          className={`relative mx-auto flex max-h-full w-full flex-col overflow-y-auto rounded-2xl bg-paper ${
+          className={`relative mx-auto flex max-h-full w-full flex-col overflow-y-auto overscroll-contain rounded-2xl bg-paper ${
             landscape ? "max-w-4xl" : "max-w-6xl lg:h-[min(85vh,52rem)] lg:flex-row lg:overflow-hidden"
           }`}
         >
@@ -211,7 +238,7 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
           <div
             ref={panelRef}
             className={`flex-1 p-6 text-ink sm:p-8 ${
-              landscape ? "mx-auto w-full max-w-2xl" : "lg:overflow-y-auto"
+              landscape ? "mx-auto w-full max-w-2xl" : "lg:overflow-y-auto lg:overscroll-contain"
             }`}
           >
             <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-vermilion">
