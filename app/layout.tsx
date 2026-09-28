@@ -33,10 +33,37 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
+const TITLE = "José Gutierrez - Concept Art Portfolio";
+const DESCRIPTION =
+  "José Gutierrez — junior concept artist focused on sci-fi splash art and character design. Have a project in mind? Get in touch and let's work together.";
+
+// The shorter of the project's two production aliases (see reference-portfolio-hosting
+// memory) — swap for the real domain once there is one. Needed to resolve the
+// app/opengraph-image.tsx card (see there for why it doesn't use the site's real
+// fonts) to an absolute URL for `og:image`/`twitter:image`.
+const SITE_URL = "https://jose-illustration-portfolio.vercel.app";
+
 export const metadata: Metadata = {
-  title: "José Gutierrez - Illustration Portfolio",
-  description:
-    "José Gutierrez — junior concept artist focused on sci-fi splash art and character design. Have a project in mind? Get in touch and let's work together.",
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  // Every `*.vercel.app` deployment sends `x-robots-tag: noindex` regardless of this
+  // (see reference-portfolio-hosting memory), so this has no effect until a custom
+  // domain replaces SITE_URL — set correctly now so nothing needs to change then.
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    siteName: TITLE,
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 export const viewport: Viewport = {
