@@ -46,7 +46,7 @@ export const HERO_COPY = {
     label: "Work with me",
     /** "Requests / commissions here". */
     note: "ご依頼はこちら",
-    /** Where the button scrolls to. The contact block arrives in a later checkpoint. */
+    /** Where the button scrolls to: the id of the contact section (components/Contact.tsx). */
     target: "#contact",
   },
 } as const;
