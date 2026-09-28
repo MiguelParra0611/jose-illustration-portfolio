@@ -14,7 +14,8 @@ describe("ILLUSTRATIONS", () => {
 
     for (const illustration of ILLUSTRATIONS) {
       expect(illustration.title.trim()).not.toBe("");
-      expect(illustration.description.trim()).not.toBe("");
+      expect(illustration.description.length).toBeGreaterThan(0);
+      for (const paragraph of illustration.description) expect(paragraph.trim()).not.toBe("");
       expect(illustration.discipline.trim()).not.toBe("");
     }
   });

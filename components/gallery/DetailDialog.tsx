@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, type CSSProperties } from "react";
 import gsap from "gsap";
 import { Flip } from "gsap/Flip";
+import { getLenis } from "@/lib/lenis";
 import { isLandscape, type Illustration } from "@/lib/illustrations";
 import { resolveSpeedDrawing } from "@/lib/speed-drawing";
 import { PlaceholderArt } from "./Card";
@@ -20,6 +21,16 @@ const reducedMotion = () =>
  * real sizes the images (object-cover) simply re-crop smoothly as the box grows.
  */
 const FLIP_BASE = { absolute: true, scale: false } as const;
+
+/**
+ * A landscape piece fills its card edge to edge, so the card's width decides how
+ * tall the picture gets. Left alone it could swallow a short screen, leaving no
+ * sign that a description sits below it. The card therefore narrows until the
+ * picture leaves ~11rem free (the tag, the title and the first lines of text)
+ * within the space the dialog has (100vh minus its `--gutter` padding on both
+ * sides), between a 16rem floor and a 56rem ceiling.
+ */
+const LANDSCAPE_CARD_WIDTH = "clamp(16rem, calc((100vh - 2 * var(--gutter) - 11rem) * var(--ar)), 56rem)";
 
 interface DetailDialogProps {
   illustration: Illustration | null;
@@ -47,6 +58,31 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
   const imageBoxRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const closingRef = useRef(false);
+  const open = illustration !== null;
+
+  // Freeze the page behind the dialog while it is open. A native modal doesn't
+  // lock scrolling, and Lenis listens for the wheel on the whole window, so
+  // without this the wheel scrolls the page behind and never the dialog's own
+  // scroll area (the dialog carries `data-lenis-prevent` so Lenis leaves those
+  // events alone). Declared before the open effect below so the layout has
+  // settled when the card's box is measured for the Flip.
+  useLayoutEffect(() => {
+    if (!open) return;
+
+    const root = document.documentElement;
+    // Hiding the page's scrollbar would widen the page and nudge the cards
+    // behind the dialog, so the width it took is padded back in.
+    const scrollbar = window.innerWidth - root.clientWidth;
+    root.style.overflow = "hidden";
+    if (scrollbar > 0) root.style.paddingRight = `${scrollbar}px`;
+    getLenis()?.stop();
+
+    return () => {
+      root.style.overflow = "";
+      root.style.paddingRight = "";
+      getLenis()?.start();
+    };
+  }, [open]);
 
   // Open: show the native dialog, then Flip the image box in from the card's box.
   useLayoutEffect(() => {
@@ -151,6 +187,7 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
     <dialog
       ref={dialogRef}
       aria-labelledby="detail-title"
+      data-lenis-prevent
       className="detail-dialog"
       onClick={(event) => {
         if (event.target === dialogRef.current) requestClose();
@@ -158,8 +195,12 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
     >
       {illustration && (
         <div
-          className={`relative mx-auto flex max-h-full w-full flex-col overflow-y-auto rounded-2xl bg-paper ${
-            landscape ? "max-w-4xl" : "max-w-6xl lg:h-[min(85vh,52rem)] lg:flex-row lg:overflow-hidden"
+          style={landscape ? { ...paneStyle, maxWidth: LANDSCAPE_CARD_WIDTH } : paneStyle}
+          className={`relative mx-auto flex max-h-full w-full flex-col overflow-y-auto overscroll-contain rounded-2xl bg-paper ${
+            landscape
+              ? // The scrollbar is hidden (wheel, touch and keys still scroll) so the picture can run to the card's right edge instead of stopping short of a 15px track.
+                "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              : "max-w-6xl lg:h-[min(85vh,52rem)] lg:flex-row lg:overflow-hidden"
           }`}
         >
           <button
@@ -171,11 +212,16 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
             ✕
           </button>
 
-          {/* Holds the artwork's size in flow; never taller than ~62vh when stacked, so text stays in reach. */}
+          {/* Holds the artwork's size in flow. A landscape piece runs edge to edge across the card
+              (which narrows on short screens, see LANDSCAPE_CARD_WIDTH) and grows as tall as its
+              aspect ratio asks, with the text below; a portrait is capped at ~62vh when stacked,
+              so the text stays in reach, and from `lg` fills the card top to bottom. */}
           <div
-            style={{ ...paneStyle, aspectRatio: "var(--ar)" }}
-            className={`relative mx-auto mt-6 w-[min(100%,calc(62vh*var(--ar)))] shrink-0 sm:mt-8 ${
-              landscape ? "" : "lg:mx-0 lg:mt-0 lg:h-full lg:w-auto"
+            style={{ aspectRatio: "var(--ar)" }}
+            className={`relative shrink-0 ${
+              landscape
+                ? "w-full"
+                : "mx-auto mt-6 w-[min(100%,calc(62vh*var(--ar)))] sm:mt-8 lg:mx-0 lg:mt-0 lg:h-full lg:w-auto"
             }`}
           >
             <div ref={imageBoxRef} className="absolute inset-0 overflow-hidden bg-ink">
@@ -211,7 +257,7 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
           <div
             ref={panelRef}
             className={`flex-1 p-6 text-ink sm:p-8 ${
-              landscape ? "mx-auto w-full max-w-2xl" : "lg:overflow-y-auto"
+              landscape ? "mx-auto w-full max-w-2xl" : "lg:overflow-y-auto lg:overscroll-contain"
             }`}
           >
             <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-vermilion">
@@ -224,7 +270,11 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
               {illustration.title}
             </h3>
             {meta && <p className="mt-1 font-mono text-xs text-fog">{meta}</p>}
-            <p className="mt-4 text-sm leading-relaxed text-ink/80">{illustration.description}</p>
+            <div className="mt-4 space-y-3 text-sm leading-relaxed text-ink/80">
+              {illustration.description.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
 
             {speedDrawing && (
               <div className="mt-6">
@@ -254,6 +304,16 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
               </div>
             )}
           </div>
+
+          {/* Fades the text's last visible line into the card's edge, so it reads as cut off and
+              scrollable. It sits over the panel's bottom padding, so it never covers the last line
+              once scrolled to the end. */}
+          {landscape && (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none sticky bottom-0 -mt-6 h-6 shrink-0 bg-gradient-to-t from-paper to-transparent"
+            />
+          )}
         </div>
       )}
     </dialog>
