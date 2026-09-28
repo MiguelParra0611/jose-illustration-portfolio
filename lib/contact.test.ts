@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { CONTACT, emailAddress, gmailComposeHref } from "./contact";
+import { CONTACT, emailAddress, gmailComposeHref, mailtoHref } from "./contact";
 
 describe("contact details", () => {
   it("joins the two halves into José's address", () => {
     expect(emailAddress()).toBe("josegut.art@gmail.com");
+    expect(mailtoHref()).toBe("mailto:josegut.art@gmail.com");
   });
 
   it("opens a Gmail compose window addressed to him", () => {

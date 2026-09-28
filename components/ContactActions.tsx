@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CONTACT, emailAddress, gmailComposeHref } from "@/lib/contact";
+import { CONTACT, emailAddress, gmailComposeHref, mailtoHref } from "@/lib/contact";
 
 const PILL =
   "group inline-flex w-full items-center justify-center gap-3 rounded-full border border-white/30 px-7 py-4 font-display text-sm font-bold uppercase tracking-tight text-white outline-none transition-colors hover:border-white hover:bg-white hover:text-ink focus-visible:border-white focus-visible:bg-white focus-visible:text-ink focus-visible:ring-2 focus-visible:ring-vermilion focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:w-auto";
@@ -11,15 +11,18 @@ const SECONDARY =
 
 /**
  * Instagram and email. The address is only ever joined here, in the browser
- * (see lib/contact.ts): the Gmail compose link gets its href after mount, and
- * the address is only written into the page once someone asks to copy it.
+ * (see lib/contact.ts): the Gmail and mail-app links get their href after
+ * mount, and the address is only written into the page once someone asks to
+ * copy it.
  */
 export function ContactActions() {
   const emailRef = useRef<HTMLAnchorElement>(null);
+  const mailtoRef = useRef<HTMLAnchorElement>(null);
   const [revealed, setRevealed] = useState<"copied" | "shown" | null>(null);
 
   useEffect(() => {
     if (emailRef.current) emailRef.current.href = gmailComposeHref();
+    if (mailtoRef.current) mailtoRef.current.href = mailtoHref();
   }, []);
 
   async function copyAddress() {
@@ -56,9 +59,20 @@ export function ContactActions() {
         </a>
       </div>
 
-      <button type="button" onClick={copyAddress} className={SECONDARY}>
-        Copy email address
-      </button>
+      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+        <button type="button" onClick={copyAddress} className={SECONDARY}>
+          Copy email address
+        </button>
+        <span aria-hidden="true" className="text-white/30">
+          ·
+        </span>
+        {/* No href in the server HTML, same reason as the Gmail link above. Plain mailto (no
+            target="_blank"): it either opens the visitor's own mail app or does nothing
+            noticeable, never a page worth leaving open in another tab. */}
+        <a ref={mailtoRef} className={SECONDARY}>
+          Open in your mail app
+        </a>
+      </div>
 
       <p role="status" className="min-h-5 font-mono text-xs text-white/80">
         {revealed === "copied" && <span className="text-vermilion">Copied · </span>}
