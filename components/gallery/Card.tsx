@@ -1,4 +1,4 @@
-import type { Illustration } from "@/lib/illustrations";
+import { isLandscape, type Illustration } from "@/lib/illustrations";
 
 /**
  * Stand-in visual for pieces that don't have real artwork yet: a dark,
@@ -27,8 +27,16 @@ interface CardProps {
 }
 
 export function Card({ illustration, index, onOpen, boxRef }: CardProps) {
+  const { image } = illustration;
+
+  // Portraits are 3:4. A landscape piece spans two columns from `sm` up; from
+  // `lg` its height comes from the portrait beside it (grid stretch), so it
+  // only needs its own ratio where it sits alone in a row.
+  const shape =
+    image && isLandscape(image) ? "aspect-[3/2] sm:col-span-2 lg:aspect-auto" : "aspect-[3/4]";
+
   return (
-    <li className="gallery-card relative aspect-[3/4] overflow-hidden rounded-2xl bg-ink">
+    <li className={`gallery-card relative overflow-hidden rounded-2xl bg-ink ${shape}`}>
       <button
         ref={boxRef}
         type="button"
@@ -36,11 +44,18 @@ export function Card({ illustration, index, onOpen, boxRef }: CardProps) {
         className="group absolute inset-0 h-full w-full text-left outline-none focus-visible:ring-2 focus-visible:ring-vermilion focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
         aria-haspopup="dialog"
       >
-        {illustration.image ? (
-          // eslint-disable-next-line @next/next/no-img-element -- swapped for next/image with real assets in checkpoint 5
+        {image ? (
+          // Plain <img>: scripts/optimize-illustrations.mjs already produced the right sizes, so
+          // next/image's optimizer would only re-process them. alt="" because the title below names the button.
+          // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={illustration.image}
-            alt={illustration.title}
+            src={image.card}
+            alt=""
+            width={image.width}
+            height={image.height}
+            loading="lazy"
+            decoding="async"
+            style={{ objectPosition: image.focus }}
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
           />
         ) : (

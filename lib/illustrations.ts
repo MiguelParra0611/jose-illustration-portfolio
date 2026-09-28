@@ -1,13 +1,30 @@
+import { ILLUSTRATION_IMAGES } from "./illustration-images";
+
+export interface IllustrationImage {
+  /** Light version for the grid card (public/illustrations/<slug>-card.webp). */
+  card: string;
+  /** Large version for the detail view (public/illustrations/<slug>.webp). */
+  full: string;
+  /** Pixel size of `full`; `card` shares its aspect ratio. Generated, see lib/illustration-images.ts. */
+  width: number;
+  height: number;
+  /** Describes the artwork for screen readers (shown on the detail view; the card is named by its title). */
+  alt: string;
+  /** CSS object-position: what a cropped card should keep in frame. Defaults to the centre. */
+  focus?: string;
+}
+
 export interface Illustration {
   slug: string;
   title: string;
   /** Short tag shown under the title, e.g. "Splash art". */
   discipline: string;
-  year: number;
-  tools: string[];
   description: string;
-  /** Path under public/illustrations/, or null while the real artwork hasn't landed yet. */
-  image: string | null;
+  /** Left out (rather than guessed) until José confirms them. */
+  year?: number;
+  tools?: string[];
+  /** Null renders a stand-in visual, handy while a piece has no artwork yet. */
+  image: IllustrationImage | null;
   /**
    * A YouTube URL (recommended for anything long/heavy — see
    * lib/speed-drawing.ts) or a local path under public/illustrations/ for a
@@ -16,57 +33,73 @@ export interface Illustration {
   speedDrawing?: string;
 }
 
+export const isLandscape = (image: IllustrationImage): boolean => image.width > image.height;
+
 /**
- * PLACEHOLDER data for checkpoint 3/4 (gallery shell + detail view). Replace
- * with José's five real pieces, titles, descriptions and speed drawings in
- * checkpoint 5 — see docs/intent/portfolio.md. Card.tsx and DetailDialog.tsx
- * render a stand-in visual whenever `image` is null, so this shape can go
- * live untouched once real images and copy are dropped in.
+ * José's five pieces. Order matters for the grid: a landscape piece spans two
+ * of the three desktop columns (see Card.tsx), so it goes first and the rows
+ * fill exactly (2+1, then 1+1+1) with no gaps at any breakpoint.
+ *
+ * Pixel facts come from the generated ILLUSTRATION_IMAGES; the words here are
+ * written by hand. Titles come from the original file names and descriptions
+ * describe what is drawn — replace either with José's own wording, and add
+ * `year` / `tools` / `speedDrawing` when he has them.
  */
 export const ILLUSTRATIONS: Illustration[] = [
   {
-    slug: "character-concept",
-    title: "Character concept",
-    discipline: "Character design",
-    year: 2026,
-    tools: ["Photoshop", "Procreate"],
-    description: "Placeholder — replaced with the real piece and its story in checkpoint 5.",
-    image: null,
-  },
-  {
-    slug: "splash-art",
-    title: "Splash art",
+    slug: "aurora",
+    title: "Aurora",
     discipline: "Splash art",
-    year: 2026,
-    tools: ["Photoshop"],
-    description: "Placeholder — replaced with the real piece and its story in checkpoint 5.",
-    image: null,
+    description:
+      "A sorceress lounges in a candle-lit tavern, conjuring a ribbon of blue magic with her wand while a tray of beer passes in the foreground.",
+    image: {
+      ...ILLUSTRATION_IMAGES.aurora,
+      alt: "Splash art of a red-haired sorceress in a feathered teal hat, reclining in a candle-lit tavern and casting blue magic with her wand.",
+      focus: "50% 35%",
+    },
   },
   {
-    slug: "environment-key",
-    title: "Environment key",
-    discipline: "Environment",
-    year: 2026,
-    tools: ["Photoshop", "Blender"],
-    description: "Placeholder — replaced with the real piece and its story in checkpoint 5.",
-    image: null,
-  },
-  {
-    slug: "creature-design",
-    title: "Creature design",
-    discipline: "Creature design",
-    year: 2026,
-    tools: ["Procreate"],
-    description: "Placeholder — replaced with the real piece and its story in checkpoint 5.",
-    image: null,
-  },
-  {
-    slug: "key-visual",
-    title: "Key visual",
+    slug: "tigre",
+    title: "Tigre",
     discipline: "Illustration",
-    year: 2026,
-    tools: ["Photoshop", "Procreate"],
-    description: "Placeholder — replaced with the real piece and its story in checkpoint 5.",
-    image: null,
+    description:
+      "A giant tiger leans into the touch of a girl in red ceremonial robes, a torii gate rising behind them.",
+    image: {
+      ...ILLUSTRATION_IMAGES.tigre,
+      alt: "Illustration of a giant tiger resting its head in the hand of a girl in red ceremonial robes, with a red torii gate behind them.",
+    },
+  },
+  {
+    slug: "poki",
+    title: "Poki",
+    discipline: "Portrait",
+    description:
+      "A young woman with silver feather ornaments and blue face paint, two cockatiels perched on her shoulder and hand.",
+    image: {
+      ...ILLUSTRATION_IMAGES.poki,
+      alt: "Portrait of a young woman with wavy brown hair, silver feather ornaments and blue face paint, with two cockatiels perched on her shoulder and hand.",
+    },
+  },
+  {
+    slug: "whitebird",
+    title: "Whitebird",
+    discipline: "Portrait",
+    description:
+      "A blindfolded girl with pale pink hair, white wings crowning her head and a gold collar set with open eyes.",
+    image: {
+      ...ILLUSTRATION_IMAGES.whitebird,
+      alt: "Portrait of a blindfolded girl with pale pink hair, white wings in her hair and a gold collar set with eyes.",
+    },
+  },
+  {
+    slug: "sacred",
+    title: "Sacred",
+    discipline: "Character design",
+    description:
+      "A veiled figure in black robes under a spiked halo, holding a crimson-wrapped staff in clawed gloves.",
+    image: {
+      ...ILLUSTRATION_IMAGES.sacred,
+      alt: "Character design of a veiled figure in black robes and a spiked halo, holding a crimson-wrapped staff in clawed black gloves.",
+    },
   },
 ];
