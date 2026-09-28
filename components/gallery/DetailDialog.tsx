@@ -22,6 +22,16 @@ const reducedMotion = () =>
  */
 const FLIP_BASE = { absolute: true, scale: false } as const;
 
+/**
+ * A landscape piece fills its card edge to edge, so the card's width decides how
+ * tall the picture gets. Left alone it could swallow a short screen, leaving no
+ * sign that a description sits below it. The card therefore narrows until the
+ * picture leaves ~11rem free (the tag, the title and the first lines of text)
+ * within the space the dialog has (100vh minus its `--gutter` padding on both
+ * sides), between a 16rem floor and a 56rem ceiling.
+ */
+const LANDSCAPE_CARD_WIDTH = "clamp(16rem, calc((100vh - 2 * var(--gutter) - 11rem) * var(--ar)), 56rem)";
+
 interface DetailDialogProps {
   illustration: Illustration | null;
   /** Looks up the grid card a slug opened from, so the image can Flip to/from its exact box. */
@@ -185,10 +195,11 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
     >
       {illustration && (
         <div
+          style={landscape ? { ...paneStyle, maxWidth: LANDSCAPE_CARD_WIDTH } : paneStyle}
           className={`relative mx-auto flex max-h-full w-full flex-col overflow-y-auto overscroll-contain rounded-2xl bg-paper ${
             landscape
               ? // The scrollbar is hidden (wheel, touch and keys still scroll) so the picture can run to the card's right edge instead of stopping short of a 15px track.
-                "max-w-4xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               : "max-w-6xl lg:h-[min(85vh,52rem)] lg:flex-row lg:overflow-hidden"
           }`}
         >
@@ -202,11 +213,11 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
           </button>
 
           {/* Holds the artwork's size in flow. A landscape piece runs edge to edge across the card
-              and grows as tall as its aspect ratio asks (the text scrolls in below it); a portrait
-              is capped at ~62vh when stacked, so the text stays in reach, and from `lg` fills the
-              card top to bottom. */}
+              (which narrows on short screens, see LANDSCAPE_CARD_WIDTH) and grows as tall as its
+              aspect ratio asks, with the text below; a portrait is capped at ~62vh when stacked,
+              so the text stays in reach, and from `lg` fills the card top to bottom. */}
           <div
-            style={{ ...paneStyle, aspectRatio: "var(--ar)" }}
+            style={{ aspectRatio: "var(--ar)" }}
             className={`relative shrink-0 ${
               landscape
                 ? "w-full"
@@ -293,6 +304,16 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
               </div>
             )}
           </div>
+
+          {/* Fades the text's last visible line into the card's edge, so it reads as cut off and
+              scrollable. It sits over the panel's bottom padding, so it never covers the last line
+              once scrolled to the end. */}
+          {landscape && (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none sticky bottom-0 -mt-6 h-6 shrink-0 bg-gradient-to-t from-paper to-transparent"
+            />
+          )}
         </div>
       )}
     </dialog>
