@@ -186,7 +186,10 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
       {illustration && (
         <div
           className={`relative mx-auto flex max-h-full w-full flex-col overflow-y-auto overscroll-contain rounded-2xl bg-paper ${
-            landscape ? "max-w-4xl" : "max-w-6xl lg:h-[min(85vh,52rem)] lg:flex-row lg:overflow-hidden"
+            landscape
+              ? // The scrollbar is hidden (wheel, touch and keys still scroll) so the picture can run to the card's right edge instead of stopping short of a 15px track.
+                "max-w-4xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              : "max-w-6xl lg:h-[min(85vh,52rem)] lg:flex-row lg:overflow-hidden"
           }`}
         >
           <button
@@ -198,11 +201,16 @@ export function DetailDialog({ illustration, getCardBox, index, onClose }: Detai
             ✕
           </button>
 
-          {/* Holds the artwork's size in flow; never taller than ~62vh when stacked, so text stays in reach. */}
+          {/* Holds the artwork's size in flow. A landscape piece runs edge to edge across the card
+              and grows as tall as its aspect ratio asks (the text scrolls in below it); a portrait
+              is capped at ~62vh when stacked, so the text stays in reach, and from `lg` fills the
+              card top to bottom. */}
           <div
             style={{ ...paneStyle, aspectRatio: "var(--ar)" }}
-            className={`relative mx-auto mt-6 w-[min(100%,calc(62vh*var(--ar)))] shrink-0 sm:mt-8 ${
-              landscape ? "" : "lg:mx-0 lg:mt-0 lg:h-full lg:w-auto"
+            className={`relative shrink-0 ${
+              landscape
+                ? "w-full"
+                : "mx-auto mt-6 w-[min(100%,calc(62vh*var(--ar)))] sm:mt-8 lg:mx-0 lg:mt-0 lg:h-full lg:w-auto"
             }`}
           >
             <div ref={imageBoxRef} className="absolute inset-0 overflow-hidden bg-ink">
